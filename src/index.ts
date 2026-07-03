@@ -18,11 +18,11 @@ app.get("/", (req: Request, res: Response) => {
     try {
       // Ejecutar una consulta de prueba usando el pool directamente
       const response = await clientDataset.query("SELECT NOW()")
-      console.log("¡Conexión exitosa a PostgreSQL!")
-      console.log("Fecha y hora del servidor:", response.rows[0].now)
-      res.send("¡Conexión exitosa a PostgreSQL!")
+      console.log("¡Connected to PostgreSQL!")
+      console.log("Server date and time:", response.rows[0].now)
+      res.send("¡Connected to PostgreSQL!")
     } catch (err: any) {
-      console.error("Error al conectar a PostgreSQL:", err.message)
+      console.error("Error connecting to PostgreSQL:", err.message)
     } finally {
       // No cerrar el pool aquí: es compartido por toda la aplicación
     }
