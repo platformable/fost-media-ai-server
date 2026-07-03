@@ -2,6 +2,7 @@ import "dotenv/config"
 import express, { Request, Response } from "express"
 import { clientDataset } from "./dbConnection.js"
 import { ask } from "./utils/aiSearch.js"
+import { authenticate } from "./utils/auth.js"
 // import { main, search } from "./utils/searchAI"
 
 // const { QueryResult } = require("pg")
@@ -13,7 +14,7 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cors())
 
-app.get("/", (req: Request, res: Response) => {
+app.get("/", authenticate, (req: Request, res: Response) => {
   async function verificarConexion() {
     try {
       // Ejecutar una consulta de prueba usando el pool directamente
@@ -31,7 +32,7 @@ app.get("/", (req: Request, res: Response) => {
   verificarConexion()
 })
 
-app.post("/api/search", async (req, res) => {
+app.post("/api/search", authenticate, async (req, res) => {
   console.log("Received request:", req.query.question)
   try {
     const { question } = req.query as { question: string }
