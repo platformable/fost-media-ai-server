@@ -1,15 +1,11 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.search = search;
-exports.ask = ask;
-require("dotenv/config");
-const genai_1 = require("@google/genai");
-const { pipeline } = require("@xenova/transformers");
-const db = require("../dbConnection");
+import "dotenv/config";
+import { GoogleGenAI } from "@google/genai";
+import { pipeline } from "@xenova/transformers";
+import { clientDataset } from "../dbConnection.js";
 // -----------------------------------------
 // Google Gemini
 // -----------------------------------------
-const ai = new genai_1.GoogleGenAI({
+const ai = new GoogleGenAI({
     apiKey: process.env.GEMINI_API_KEY,
 });
 // -----------------------------------------
@@ -34,7 +30,7 @@ async function search(question, limit = 5) {
         normalize: true,
     });
     const embedding = JSON.stringify(Array.from(output.data));
-    const result = await db.query(`
+    const result = await clientDataset.query(`
     SELECT
         id,
         content,
@@ -108,3 +104,4 @@ async function ask(question) {
         chunks: docs,
     };
 }
+export { search, ask };

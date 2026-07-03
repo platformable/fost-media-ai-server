@@ -1,11 +1,11 @@
-require("dotenv").config()
+import "dotenv/config"
 import express, { Request, Response } from "express"
-const clientDataset = require("./dbConnection")
-import { ask } from "./utils/aiSearch"
+import { clientDataset } from "./dbConnection.js"
+import { ask } from "./utils/aiSearch.js"
 // import { main, search } from "./utils/searchAI"
 
 // const { QueryResult } = require("pg")
-var cors = require("cors")
+import cors from "cors"
 const app = express()
 const port = 5700
 
@@ -30,20 +30,6 @@ app.get("/", (req: Request, res: Response) => {
 
   verificarConexion()
 })
-
-// app.post("/api/search", async (req: Request, res: Response) => {
-//   const question = req.query.question as string
-//   console.log("Pregunta recibida:", question)
-//   const limit = parseInt(req.query.limit as string) || 1
-
-//   try {
-//     const results = await main(question, limit)
-//     res.send(results)
-//   } catch (error) {
-//     console.error("Error en la búsqueda:", error)
-//     res.status(500).send({ error: "Error en la búsqueda" })
-//   }
-// })
 
 app.post("/api/search", async (req, res) => {
   try {

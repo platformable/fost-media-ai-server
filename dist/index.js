@@ -1,19 +1,14 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-require("dotenv").config();
-const express_1 = __importDefault(require("express"));
-const clientDataset = require("./dbConnection");
-const aiSearch_1 = require("./utils/aiSearch");
+import "dotenv/config";
+import express from "express";
+import { clientDataset } from "./dbConnection.js";
+import { ask } from "./utils/aiSearch.js";
 // import { main, search } from "./utils/searchAI"
 // const { QueryResult } = require("pg")
-var cors = require("cors");
-const app = (0, express_1.default)();
+import cors from "cors";
+const app = express();
 const port = 5700;
-app.use(express_1.default.json());
-app.use(express_1.default.urlencoded({ extended: false }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 app.use(cors());
 app.get("/", (req, res) => {
     async function verificarConexion() {
@@ -33,22 +28,10 @@ app.get("/", (req, res) => {
     }
     verificarConexion();
 });
-// app.post("/api/search", async (req: Request, res: Response) => {
-//   const question = req.query.question as string
-//   console.log("Pregunta recibida:", question)
-//   const limit = parseInt(req.query.limit as string) || 1
-//   try {
-//     const results = await main(question, limit)
-//     res.send(results)
-//   } catch (error) {
-//     console.error("Error en la búsqueda:", error)
-//     res.status(500).send({ error: "Error en la búsqueda" })
-//   }
-// })
 app.post("/api/search", async (req, res) => {
     try {
         const { question } = req.query;
-        const result = await (0, aiSearch_1.ask)(question);
+        const result = await ask(question);
         res.json(result);
     }
     catch (err) {

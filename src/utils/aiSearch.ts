@@ -3,7 +3,7 @@ import { GoogleGenAI } from "@google/genai"
 import OpenAI from "openai"
 
 import { pipeline } from "@xenova/transformers"
-const db = require("../dbConnection")
+import { clientDataset } from "../dbConnection.js"
 
 // -----------------------------------------
 // Google Gemini
@@ -42,7 +42,7 @@ async function search(question: string, limit = 5) {
 
   const embedding = JSON.stringify(Array.from(output.data))
 
-  const result = await db.query(
+  const result = await clientDataset.query(
     `
     SELECT
         id,
