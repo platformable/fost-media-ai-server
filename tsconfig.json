@@ -1,11 +1,13 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "module": "commonjs",
+
     "outDir": "./dist",
     "rootDir": "./src",
     "strict": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
   },
   "include": ["src/**/*"]
 }
