@@ -2,7 +2,7 @@ import "dotenv/config"
 import { GoogleGenAI } from "@google/genai"
 import OpenAI from "openai"
 
-const { pipeline } = require("@xenova/transformers")
+import { pipeline } from "@xenova/transformers"
 const db = require("../dbConnection")
 
 // -----------------------------------------
