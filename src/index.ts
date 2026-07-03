@@ -32,6 +32,7 @@ app.get("/", (req: Request, res: Response) => {
 })
 
 app.post("/api/search", async (req, res) => {
+  console.log("Received request:", req.query.question)
   try {
     const { question } = req.query as { question: string }
 

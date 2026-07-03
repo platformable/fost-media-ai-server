@@ -4,6 +4,7 @@ import OpenAI from "openai"
 
 import { pipeline } from "@xenova/transformers"
 import { clientDataset } from "../dbConnection.js"
+import createArrayFromString from "./createArrayFromString.js"
 
 // -----------------------------------------
 // Google Gemini
@@ -117,8 +118,10 @@ async function ask(question: string) {
     contents: prompt,
   })
 
+  const answer = createArrayFromString(response?.text)
+
   return {
-    answer: response.text,
+    answer,
     sources: docs.map((doc: any) => ({
       id: doc.id,
       speaker: doc.metadata?.speaker,
