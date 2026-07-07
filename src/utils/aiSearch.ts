@@ -109,7 +109,7 @@ ${question}
 // -----------------------------------------
 
 async function ask(question: string) {
-  const docs = await search(question, 255)
+  const docs = await search(question, 5)
 
   const prompt = buildPrompt(question, docs)
 
