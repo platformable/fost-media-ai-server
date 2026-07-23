@@ -3,9 +3,7 @@ import express, { Request, Response } from "express"
 import { clientDataset } from "./dbConnection.js"
 import { ask } from "./utils/aiSearch.js"
 import { authenticate } from "./utils/auth.js"
-// import { main, search } from "./utils/searchAI"
 
-// const { QueryResult } = require("pg")
 import cors from "cors"
 const app = express()
 const port = 5700

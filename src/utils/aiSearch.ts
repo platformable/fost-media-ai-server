@@ -1,10 +1,9 @@
 import "dotenv/config"
-import { GoogleGenAI } from "@google/genai"
+import { GoogleGenAI, Type } from "@google/genai"
 import OpenAI from "openai"
 
 import { pipeline } from "@xenova/transformers"
 import { clientDataset } from "../dbConnection.js"
-import createArrayFromString from "./createArrayFromString.js"
 
 // -----------------------------------------
 // Google Gemini
@@ -13,6 +12,7 @@ import createArrayFromString from "./createArrayFromString.js"
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY!,
 })
+
 // -----------------------------------------
 // Embedding model (singleton)
 // -----------------------------------------
@@ -33,7 +33,7 @@ async function getExtractor() {
 // Vector Search
 // -----------------------------------------
 
-async function search(question: string, limit = 5) {
+async function search(question: string, limit = 25) {
   const model = await getExtractor()
 
   const output = await model(question, {
@@ -72,6 +72,8 @@ Source ${index + 1}
 
 Speaker: ${doc.metadata?.speaker ?? "Unknown"}
 
+Talk: ${doc.metadata?.talkName ?? doc.metadata?.talk ?? "Unknown"}
+
 Conference: ${doc.metadata?.conference ?? ""}
 
 Transcript:
@@ -86,13 +88,17 @@ You are an AI assistant specialised in conference talks.
 
 
 
+
+
 Rules:
--Answer ONLY using the supplied transcript excerpts. Give the answers as the direct quotes from the transcripts.
+- Answer ONLY using the supplied transcript excerpts. Give the answers as the direct quotes from the transcripts.
 - Never invent information.
-- If the answer is not present, say you don't know.
-- Provide one quote per speaker showing what they said about the topic. Show up to three quotes.
-- Mention the speaker involved, the name of their talk and what conference they said it at. (from metadata)
-- Keep the answer under 250 words.
+- Return an empty array ONLY if none of the supplied excerpts is semantically related to the question.
+- Provide one quote per speaker showing what they said about the topic.
+- Extract the 3 most insightful technical statements from this talk.
+- Ignore greetings, introductions, and generic observations.
+- Separate the speaker's first name, last name, role and company.
+- Keep the overall text under 250 words.
 
 Context:
 
@@ -109,16 +115,58 @@ ${question}
 // -----------------------------------------
 
 async function ask(question: string) {
-  const docs = await search(question, 5)
+  const docs = await search(question, 25)
 
   const prompt = buildPrompt(question, docs)
 
   const response = await ai.models.generateContent({
     model: process.env.GEMINI_MODEL || "gemini-2.5-flash",
     contents: prompt,
+    config: {
+      responseMimeType: "application/json",
+      responseSchema: {
+        type: Type.ARRAY,
+        description: "A list of quotes answering the user's question.",
+        items: {
+          type: Type.OBJECT,
+          properties: {
+            firstName: {
+              type: Type.STRING,
+              description: "Speaker's first name",
+            },
+            lastName: { type: Type.STRING, description: "Speaker's last name" },
+            talkName: { type: Type.STRING },
+            role: { type: Type.STRING, description: "Speaker's role" },
+            company: { type: Type.STRING, description: "Speaker's company" },
+            conference: { type: Type.STRING },
+            quote: {
+              type: Type.STRING,
+              description: "Direct quote from the transcript",
+            },
+          },
+          required: [
+            "firstName",
+            "lastName",
+            "talkName",
+            "role",
+            "company",
+            "conference",
+            "quote",
+          ],
+        },
+      },
+    },
   })
 
-  const answer = createArrayFromString(response?.text)
+  // Parse the strict JSON directly
+  let answer = []
+  if (response?.text) {
+    try {
+      answer = JSON.parse(response.text)
+    } catch (e) {
+      console.error("Failed to parse JSON response", e)
+    }
+  }
 
   return {
     answer,
