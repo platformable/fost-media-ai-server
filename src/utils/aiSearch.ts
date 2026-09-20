@@ -96,6 +96,7 @@ Rules:
 - Return an empty array ONLY if none of the supplied excerpts is semantically related to the question.
 - Provide one quote per speaker showing what they said about the topic.
 - Extract the 3 most insightful technical statements from this talk.
+- Always start the quote at the beginning of a sentence.
 - Ignore greetings, introductions, and generic observations.
 - Separate the speaker's first name, last name, role and company.
 - Keep the overall text under 250 words.
