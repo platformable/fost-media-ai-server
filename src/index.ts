@@ -4,6 +4,11 @@ import { clientDataset } from "./dbConnection.js"
 import { ask } from "./utils/aiSearch.js"
 import { authenticate } from "./utils/auth.js"
 
+import { getEmbedding } from "./utils/getEmbedding.js"
+import { generateAnswer } from "./utils/generateAnswer.js"
+import { buildContext } from "./utils/buildContext.js"
+import { searchChunks } from "./utils/searchChunks.js"
+
 import cors from "cors"
 const app = express()
 const port = 5700
@@ -43,6 +48,44 @@ app.post("/api/search", authenticate, async (req, res) => {
 
     res.status(500).json({
       error: "Internal server error",
+    })
+  }
+})
+
+app.post("/api/ask-reports", async (req, res) => {
+  try {
+    const { question } = req.body
+
+    console.log("Received question:", question)
+
+    if (!question || typeof question !== "string") {
+      return res.status(400).json({
+        error: "Question is required",
+      })
+    }
+
+    const questionEmbedding = await getEmbedding(question)
+
+    const chunks = await searchChunks(questionEmbedding, 5)
+
+    const context = buildContext(chunks)
+
+    const answer = await generateAnswer(question, context)
+
+    return res.json({
+      answer,
+      sources: chunks.map((chunk) => ({
+        page: chunk.pageStart,
+        section: chunk.section,
+        subsection: chunk.subsection,
+        distance: chunk.distance,
+      })),
+    })
+  } catch (error) {
+    console.error(error)
+
+    return res.status(500).json({
+      error: "Failed to answer question",
     })
   }
 })
