@@ -1,4 +1,4 @@
-import type { SearchResult } from "./Types"
+import type { SearchResult } from "./Types.js"
 export function buildContext(chunks: SearchResult[]): string {
   if (chunks.length === 0) {
     return "No relevant information was found in the report."
